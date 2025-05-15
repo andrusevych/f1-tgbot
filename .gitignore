@@ -1,0 +1,19 @@
+
+# Конфігураційні файли
+config.json
+
+# Python файли кешу
+__pycache__/
+*.py[cod]
+
+# Віртуальні середовища
+venv/
+env/
+f1bot-env/
+
+# Файли IDE
+.vscode/
+.idea/
+
+# Логи
+*.log
