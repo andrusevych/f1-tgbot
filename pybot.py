@@ -2,6 +2,8 @@ import json
 import asyncio
 import nest_asyncio
 import os
+import socket
+import threading
 from datetime import datetime, timedelta
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
@@ -141,6 +143,17 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # Запуск бота
 async def main():
     app = ApplicationBuilder().token(BOT_TOKEN).build()
+    
+    #Фейк порт для Рендера
+    def fake_port():
+        s = socket.socket()
+        s.bind(("", 10000))  # будь-який вільний порт
+        s.listen(1)
+        while True:
+            conn, addr = s.accept()
+            conn.close()
+
+    threading.Thread(target=fake_port, daemon=True).start()
 
     # Обробники команд
     app.add_handler(CommandHandler("start", start))
