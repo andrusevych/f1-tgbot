@@ -19,7 +19,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 GROUP_CHAT_ID = int(os.getenv("GROUP_CHAT_ID"))
 
 WEBHOOK_PATH = f"/webhook/{BOT_TOKEN}"
-WEBHOOK_URL = f"https://b3f8-185-136-134-43.ngrok-free.app/webhook/{BOT_TOKEN}"
+WEBHOOK_URL = f"https://https://f1-tgbot-1.onrender.com/webhook/{BOT_TOKEN}"
 
 application = ApplicationBuilder().token(BOT_TOKEN).build()
 
