@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: telegram-bot
+    runtime: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn pybot:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: BOT_TOKEN
+        value: 7772169496:AAFL9UYggUsY3ehEKU7egLfha2vz68-u16Y
+      - key: GROUP_CHAT_ID
+        value: -1002667916029
