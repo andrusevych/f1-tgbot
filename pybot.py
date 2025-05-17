@@ -117,8 +117,7 @@ async def manual_poll(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if race:
             question = f"🏁 Чи будеш ти дивитись {race['raceName']} цієї неділі?"
             options = ["Так, буду! ✅", "Ні, не буду("]
-            await context.bot.send_poll(
-                chat_id=GROUP_CHAT_ID,
+            await update.effective_chat.send_poll(
                 question=question,
                 options=options,
                 is_anonymous=False,
