@@ -176,7 +176,7 @@ async def main():
 
     print("✅ Бот запущено")
     print(f"🔍 Application object: {app}")
-    await app.run_polling(close_loop=False)
+    app.run_polling(close_loop=False)
 
 if __name__ == "__main__":
     nest_asyncio.apply()  # Додаємо модифікацію
