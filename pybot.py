@@ -129,35 +129,21 @@ application.add_handler(CallbackQueryHandler(button_handler))
 
 scheduler = AsyncIOScheduler()
 
-async def process_updates(application: Application):
-    try:
-        while True:
-            update = await application.update_queue.get()
-            await application.process_update(update)
-    except asyncio.CancelledError:
-        print("process_updates task cancelled")
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # 🚀 STARTUP
     await application.initialize()
     await application.bot.set_webhook(WEBHOOK_URL)
 
     scheduler.add_job(
-    send_weekly_poll,
-    trigger=CronTrigger(day_of_week="mon", hour=11, minute=30),
-    args=[application]
-)
+        send_weekly_poll,
+        trigger=CronTrigger(day_of_week="mon", hour=11, minute=30),
+        args=[application]
+    )
     scheduler.start()
     print("Webhook встановлено і scheduler запущено")
 
-    # Запускаємо таск обробки оновлень
-    update_task = asyncio.create_task(process_updates(application))
+    yield  # тут FastAPI працює
 
-    yield  # ⏳ Між startup і shutdown
-
-    # 🧹 SHUTDOWN
-    update_task.cancel()
     await application.bot.delete_webhook()
     scheduler.shutdown()
     print("Webhook видалено і scheduler зупинено")
@@ -166,10 +152,12 @@ app = FastAPI(lifespan=lifespan)
 
 @app.post(WEBHOOK_PATH)
 async def telegram_webhook(request: Request):
-    update_data = await request.json()
-    update = Update.de_json(update_data, application.bot)
-    await application.update_queue.put(update)
+    data = await request.json()
+    update = Update.de_json(data, application.bot)
+    await application.process_update(update)
     return {"ok": True}
 
 if not BOT_TOKEN or not GROUP_CHAT_ID:
     raise RuntimeError("❌ BOT_TOKEN або GROUP_CHAT_ID не задані у середовищі!")
+
+
