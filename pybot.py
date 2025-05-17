@@ -142,12 +142,16 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Запуск бота
 async def main():
-    app = ApplicationBuilder().token(BOT_TOKEN).build()
+    app = ApplicationBuilder().token(BOT_TOKEN).concurrent_updates(True).build()
     
-    #Фейк порт для Рендера
+    if app is None:
+        print("❌ Не вдалося створити бота. Перевірте залежності.")
+        return  # Вихід з функції
+
+    # Фейк порт для Render
     def fake_port():
         s = socket.socket()
-        s.bind(("", 10000))  # будь-який вільний порт
+        s.bind(("", 10000))
         s.listen(1)
         while True:
             conn, addr = s.accept()
@@ -155,13 +159,13 @@ async def main():
 
     threading.Thread(target=fake_port, daemon=True).start()
 
-    # Обробники команд
+    # Обробники
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("next", next_race))
     app.add_handler(CommandHandler("poll", manual_poll))
     app.add_handler(CallbackQueryHandler(button_handler))
 
-    # Планувальник для щотижневого опитування
+    # Планувальник
     scheduler = AsyncIOScheduler()
     scheduler.add_job(
         send_weekly_poll,
@@ -170,15 +174,14 @@ async def main():
     )
     scheduler.start()
 
-    print("✅ Тестовий бот запущено")
-    await app.run_polling()
-
+    print("✅ Бот запущено")
+    print(f"🔍 Application object: {app}")
+    await app.run_polling(close_loop=False)
 
 if __name__ == "__main__":
-    nest_asyncio.apply()  # Apply once before running async tasks
-
+    nest_asyncio.apply()  # Додаємо модифікацію
+    loop = asyncio.get_event_loop()
     try:
-        asyncio.run(main())  # Cleaner execution
-    except RuntimeError:
-        print("⚠️ Event loop issue detected, retrying...")
-        asyncio.run(main())  # Retry execution if necessary
+        loop.run_until_complete(main())  # Використовуємо loop.run_until_complete()
+    except RuntimeError as e:
+        print(f"❌ RuntimeError: {e}")
